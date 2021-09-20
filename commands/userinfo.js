@@ -1,10 +1,10 @@
 module.exports = {
-  name: 'UserInfo',
+  name: 'userinfo',
   description: 'Retrieves and displays information about a Discord user',
-  usage: 'userinfo @user',
-  execute(message, args, client) {
-    client.users
-      .fetch(message.mentions.users.first().id) // Grabs the user resolvable from the first mention found in the message.
+  usage: `userinfo @user`,
+  execute(args) {
+    args.client.users
+      .fetch(args.message.mentions.users.first().id) // Grabs the user resolvable from the first mention found in the args.message.
       .then((user) => {
         const embed = {
           // Displays all user properties that may be of interest.
@@ -14,9 +14,9 @@ module.exports = {
           } \nLocale: ${user.locale} \nsystem: ${
             user.system
           } \nFlags: ${user.flags.toArray().join(', ')}`,
-          color: 'BLURPLE',
+          color: args.color,
         };
-        message.channel.send({ embed: embed });
+        args.message.channel.send({ embed: embed });
       })
       .catch((error) => {
         console.error(error);
