@@ -1,11 +1,13 @@
 const fs = require('fs');
+const path = require('path');
 const fuzzy = require('fuzzyset.js'); // Used to fuzzy match a command by it's name.
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require('./config.json'); // Contains useful information such as prefix and token.
+
 client.commands = new Discord.Collection();
 const commandFiles = fs
-  .readdirSync('./commands')
+  .readdirSync(path.resolve(__dirname, 'commands'))
   .filter((file) => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -23,22 +25,33 @@ client.on('ready', () => {
 client.on('message', async (message) => {
   if (!message.content.startsWith(config.prefix) || message.author.bot) return;
 
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/); // Create an array of all 'arguments' by using split to get everything after the command.
-  const command = args.shift().toLowerCase();
+  const userArgs = message.content
+    .slice(config.prefix.length)
+    .trim()
+    .split(/ +/); // Create an array of all 'arguments' by using split to get everything after the command.
+  const command = userArgs.shift().toLowerCase();
 
   console.log(
     `${message.author.username}#${message.author.discriminator} is trying to run: ${command}` // Logs when a user is trying to run a command, saying what command is attempting to be ran.
   );
   try {
+    const args = {
+      message: message,
+      userArgs: userArgs,
+      client: client,
+      Discord: Discord,
+      commands: client.commands,
+      prefix: config.prefix,
+      color: 'BLURPLE',
+    };
+
     const fuzzyCommand = await fuzzset // Attempt to find a command based on a fuzzy string search against the 'fuzzy set' we made before.
       .get(command, null, 0.7)
       .toString()
       .split(',')[1];
     console.log(`Fuzzy command: ${fuzzyCommand}`); // Logs what the fuzzy match is.
 
-    await client.commands
-      .get(fuzzyCommand)
-      .execute(message, args, client, Discord); // If a command was found from the fuzzy search, run the command and parse necessary parameters.
+    await client.commands.get(fuzzyCommand).execute(args); // If a command was found from the fuzzy search, run the command and parse necessary parameters.
   } catch (error) {
     console.error(error);
     message.reply("Error trying to execute that command! Doesn't exist?");
