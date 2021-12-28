@@ -1,11 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 const fuzzy = require('fuzzyset.js'); // Used to fuzzy match a command by it's name.
-const Discord = require('discord.js');
-const client = new Discord.Client();
+const { Discord, Client, Intents } = require('discord.js');
+const myIntents = new Intents(
+  Intents.FLAGS.GUILD_MESSAGES,
+  Intents.FLAGS.GUILD_MEMBERS,
+  Intents.FLAGS.GUILD_PRESENCES,
+  Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+  Intents.FLAGS.GUILD_ROLE_CREATE,
+  Intents.FLAGS.GUILD_ROLE_UPDATE,
+  Intents.FLAGS.CHANNEL_UPDATE,
+  Intents.FLAGS.THREAD_MEMBER_UPDATE,
+  Intents.FLAGS.THREAD_MEMBERS_UPDATE,
+  Intents.FLAGS.THREAD_LIST_SYNC,
+  Intents.FLAGS.GUILD_BANS
+);
+const client = new Client({ intents: myIntents });
 const config = require('./config.json'); // Contains useful information such as prefix and token.
 
-client.commands = new Discord.Collection();
+client.commands = [];
 const commandFiles = fs
   .readdirSync(path.resolve(__dirname, 'commands'))
   .filter((file) => file.endsWith('.js'));
@@ -13,7 +26,7 @@ const commandFiles = fs
 for (const file of commandFiles) {
   // Find all files that exist in the 'commands' folder and create a command based on the same name (excluding file extensions).
   const command = require(`./commands/${file}`);
-  client.commands.set(command.name, command);
+  client.commands.push(command);
 }
 
 const fuzzset = fuzzy(client.commands.map((command) => command.name)); // Create a set of strings to be used to fuzzy match by mapping all the commands by name.
@@ -45,16 +58,43 @@ client.on('message', async (message) => {
       color: 'BLURPLE',
     };
 
+    console.log(`Command: ${command}`);
     const fuzzyCommand = await fuzzset // Attempt to find a command based on a fuzzy string search against the 'fuzzy set' we made before.
-      .get(command, null, 0.7)
+      .get(command, null, 0.6)
       .toString()
       .split(',')[1];
     console.log(`Fuzzy command: ${fuzzyCommand}`); // Logs what the fuzzy match is.
+    if (command === fuzzyCommand) {
+      await client.commands.indexOf(fuzzyCommand).execute(args); // If a command was found from the fuzzy search, and it was an exact match - run the command and parse args.
+    } else {
+      // not an exact match
+      const embed = {
+        title: 'Fuzzy Command Search',
+        description: `Did you mean **${fuzzyCommand}**?`,
+        color: args.color,
+      };
 
-    await client.commands.get(fuzzyCommand).execute(args); // If a command was found from the fuzzy search, run the command and parse necessary parameters.
+      const msg = await message.channel.send({ embed: embed });
+      await msg.react('✅');
+      await msg.react('❌');
+      const filter = (reaction, user) => user.id === message.author.id;
+      const collector = msg.createReactionCollector(filter, { time: 10000 });
+
+      collector.on('collect', (reaction) => {
+        if (reaction.emoji.name === '✅') {
+          client.commands.indexOf(fuzzyCommand).execute(args);
+          msg.delete().catch((err) => console.error(err));
+        } else if (reaction.emoji.name === '❌') {
+          msg.delete().catch((err) => console.error(err));
+        }
+      });
+      collector.on('end', (collected) => {
+        msg.delete().catch((err) => console.error(err));
+      });
+    }
   } catch (error) {
     console.error(error);
-    message.reply("Error trying to execute that command! Doesn't exist?");
+    message.reply('No command found... does it exist?');
   }
 });
 
