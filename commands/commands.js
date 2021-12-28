@@ -12,7 +12,7 @@ module.exports = {
         commands += `${command.name}  **|**  **${command.description}**\n`;
       });
 
-      commands += '\nFor more information on a command, use `help <command>`';
+      commands += '\nFor more information on a command, use `usage <command>`';
 
       const embed = {
         title: this.name,

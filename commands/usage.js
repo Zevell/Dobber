@@ -1,4 +1,4 @@
-module.exports = {
+const modExport = (module.exports = {
   name: 'usage',
   description: 'Displays information about how to use a command.',
   usage: `usage ping`,
@@ -17,4 +17,4 @@ module.exports = {
       msg.replace(split, `**${split}**`) // add bolding to the command and prefix only
     );
   },
-};
+});

@@ -1,4 +1,4 @@
-module.exports = {
+const modExport = (module.exports = {
   name: 'memberinfo',
   description:
     'Retrieves and displays information about a Discord guild member.',
@@ -6,7 +6,7 @@ module.exports = {
   execute: async (args) => {
     if (!args.userArgs[0])
       return args.message.reply(
-        `Please provide a user, usage: \n${this.usage}`
+        `Please provide a user, usage: \n${modExport.usage}`
       );
 
     const member = await args.message.guild.members.fetch(
@@ -47,4 +47,4 @@ module.exports = {
 
     args.message.channel.send(embed);
   },
-};
+});

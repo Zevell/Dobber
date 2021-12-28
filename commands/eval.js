@@ -58,11 +58,18 @@ function sendEvalResult(args, result) {
 }
 
 function sendResult(args, result) {
+  const embed = new args.Discord.MessageEmbed()
+    .setColor(args.color)
+    .setTitle('Output:')
+    .setDescription('');
+
   if (typeof result === 'object') {
-    args.message.channel.send(
-      `Eval output: \n\`\`\`js\n${JSON.stringify(result, undefined, 2)}\n\`\`\``
+    embed.setDescription(
+      `\`\`\`js\n${JSON.stringify(result, undefined, 2)}\n\`\`\``
     );
   } else {
-    args.message.channel.send(`Eval output: \n\`\`\`js\n${result}\n\`\`\``);
+    embed.setDescription(`\`\`\`js\n${result}\n\`\`\``);
   }
+
+  args.message.channel.send({ embed: embed });
 }

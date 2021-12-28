@@ -1,4 +1,4 @@
-module.exports = {
+const modExport = (module.exports = {
   name: 'userinfo',
   description: 'Retrieves and displays information about a Discord user',
   usage: `userinfo @user`,
@@ -22,4 +22,4 @@ module.exports = {
         console.error(error);
       });
   },
-};
+});
