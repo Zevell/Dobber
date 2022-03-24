@@ -3,9 +3,11 @@
     "@discordjs/rest": "^0.1.0-canary.0",
     "booru": "^2.4.2",
     "discord-api-types": "^0.22.0",
-    "discord.js": "^13.1.0",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
     "fuzzyset.js": "^1.0.6",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "soyultro": "^4.8.5"
   },
   "devDependencies": {
     "eslint": "^7.28.0"

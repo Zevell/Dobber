@@ -1,21 +1,13 @@
+const SlashCommandBuilder = require('@discordjs/builders').SlashCommandBuilder;
 module.exports = {
-  name: 'ping',
-  description: 'Replies with the time it took to respond in milliseconds',
-  usage: `ping`,
-  execute(args) {
-    args.message.channel
-      .send('Awaiting ping...')
-      .then((msg) => {
-        const ping = msg.createdTimestamp - args.message.createdTimestamp;
-        const embed = {
-          title: this.name,
-          description: `${args.message.author}, Ping is ${ping}ms`,
-          color: args.color,
-        };
-        msg.edit('', { embed: embed });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  },
+	data: new SlashCommandBuilder()
+		.setName('ping')
+		.setDescription('Replies with the amount of time it took to send the message.'),
+	execute: async (args) => {
+		// Define a const with interaction from args.
+		const { interaction } = args;
+
+		// Reply to the interaction with the time it took to send the message. Use date.now() to get the current time.
+		interaction.reply(`Pong! Yep... that's all you get.`);
+	},
 };
