@@ -24,7 +24,7 @@ module.exports = {
 			console.log('Node NOT Exiting...');
 		});
 
-		if (args.interaction.user.id !== process.env.evalUserId) {
+		if (args.interaction.user.id !== process.env.ownerUserId) {
 			return args.interaction.reply('Hey! ||No!||');
 		}
 
