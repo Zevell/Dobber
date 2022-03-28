@@ -1,10 +1,22 @@
-require('dotenv').config();
-const fs = require('node:fs');
+require('dotenv').config('.env');
+const fs = require('fs');
 const path = require('path');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { MessageEmbed, Client, Intents } = require('discord.js');
 const myIntents = new Intents();
+
+// If the bot is in development mode, create a token variable and assign it to the dev token in the .env file.
+// Otherwise, create a token variable and assign it to the production token in the .env file.
+const token = process.env.inDevelopment === 'true' ? process.env.devToken : process.env.prodToken;
+
+// If the bot is in development mode, create a clientId variable and assign it to the dev clientId in the .env file.
+// Otherwise, create a clientId variable and assign it to the production clientId in the .env file.
+const clientId = process.env.inDevelopment === 'true' ? process.env.devClientId : process.env.prodClientId;
+
+// If the bot is in devlopment mode, create a guildId variable and assign it to the dev guildId in the .env file.
+// Otherwise, create a guildId variable and assign it to the production guildId in the .env file.
+const guildId = process.env.inDevelopment === 'true' ? process.env.devGuildId : process.env.prodGuildId;
 
 myIntents.add(
 	Intents.FLAGS.GUILDS,
@@ -27,21 +39,19 @@ for (const file of commandFiles) {
 	commands.push(command.data.toJSON());
 }
 
-const rest = new REST({ version: '9' }).setToken(process.env.token);
+const rest = new REST({ version: '9' }).setToken(token);
 
 const registerCommands = async () => {
 	try {
-		// If in development mode, deploy guild commands, otherwise deploy global commands.
-		if (process.env.inDevelopment === 'true') {
-			console.log('Deploying guild commands...');
-			await rest.put(Routes.applicationGuildCommands(process.env.clientId, process.env.guildId), { body: commands });
-			console.log('Deployed guild commands.');
-		} else {
-			// Deploy application commands.
-			console.log('Deploying application commands...');
-			await rest.put(Routes.applicationCommands(process.env.clientId), { body: commands });
-			console.log('Application commands deployed.');
-		}
+		// Deploy guild commands.
+		console.log('Deploying guild commands...');
+		await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+		console.log('Deployed guild commands.');
+
+		// // Deploy application commands.
+		// console.log('Deploying application commands...');
+		// await rest.put(Routes.applicationCommands(clientId), { body: commands });
+		// console.log('Application commands deployed.');
 	} catch (error) {
 		console.error(error);
 	}
@@ -50,6 +60,12 @@ const registerCommands = async () => {
 // Emit a one-time ready event.
 client.once('ready', () => {
 	console.log('Ready!');
+
+	// Get the guild from the guildId variable.
+	const guild = client.guilds.cache.get(guildId);
+
+	// Set the bot's presence.
+	client.user.setPresence({ activities: [{ name: `with ${guild.name}` }] });
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -58,10 +74,7 @@ client.on('interactionCreate', async (interaction) => {
 
 	const { commandName, options } = interaction;
 
-	// If in development mode, log the command.
-	if (process.env.inDevelopment === 'true') {
-		console.log(`${interaction.user.tag} ran the command ${commandName}`);
-	}
+	console.log(`${interaction.user.tag} ran the command ${commandName}`);
 
 	const args = {
 		MessageEmbed: MessageEmbed,
@@ -85,4 +98,53 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 registerCommands();
-client.login(process.env.token);
+client
+	.login(token)
+	.then(async () => {
+		// Update the permissions of various commands using repeated function calls.
+		updatePerms('purge', [{ id: '126701110864904192', type: 'ROLE', permission: true }]);
+		updatePerms('nsfw', null, false);
+	})
+	.catch((error) => {
+		console.error(error);
+	});
+
+// TODO: Add a parameter for a role name, use the role name to find the role and set the permissions.
+async function updatePerms(commandName, permissions = null, defaultPermissions = null) {
+	// If commandName is not a string, throw an error.
+	if (typeof commandName !== 'string') throw new Error('Command name must be a string.');
+
+	const guild = client.guilds.cache.get(guildId);
+	const guildCommands = await guild.commands.fetch();
+	const command = guildCommands.find((command) => command.name === commandName);
+
+	if (defaultPermissions !== null && command) {
+		// If the defaultPermissions variable is not a boolean, throw an error.
+		if (typeof defaultPermissions !== 'boolean') throw new Error('defaultPermissions must be of type boolean.');
+
+		console.log(`Updating default permissions for ${commandName} to ${defaultPermissions}...`);
+		command.setDefaultPermission(defaultPermissions);
+		// Allow the owner of the bot to use the command, as they will need access for development purposes.
+		guild.commands.permissions.add({
+			command: command.id,
+			permissions: [{ id: process.env.ownerUserId, type: 'USER', permission: true }],
+		});
+		console.log(`Updated default permissions for ${commandName} to ${defaultPermissions}`);
+	} else if (command && permissions) {
+		// If the permissions variable is not an array, throw an error.
+		if (!Array.isArray(permissions)) throw new Error('permissions must be an array of objects.');
+		// If the array does not contain an object, throw an error.
+		if (!permissions.length) throw new Error('permissions must contain at least one object.');
+
+		console.log(`Setting permissions for guild command ${commandName} to ${JSON.stringify(permissions)}...`);
+		command.setDefaultPermission(false);
+		guild.commands.permissions.add({
+			command: command.id,
+			permissions: permissions,
+		});
+
+		console.log('Permissions set.');
+	} else {
+		console.error('Command not found. Unable to set permissions.');
+	}
+}
