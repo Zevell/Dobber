@@ -1,0 +1,5 @@
+{
+	"ignore": ["**/node_modules/**"],
+	"ext": "js,json,env",
+	"delay": 2500
+}
