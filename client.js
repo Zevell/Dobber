@@ -109,7 +109,19 @@ client
 		console.error(error);
 	});
 
-// TODO: Add a parameter for a role name, use the role name to find the role and set the permissions.
+// Function to get the id of a role by name.
+async function getRoleIdByName(roleName) {
+	// If roleName is null, return.
+	if (!roleName) return;
+	// If roleName is not a string, throw an error.
+	if (typeof roleName !== 'string') throw new Error('Role name must be a string.');
+
+	const guild = client.guilds.cache.get(guildId);
+	const roles = await guild.roles.fetch();
+	const role = roles.find((r) => r.name.toLowerCase() === roleName.toLowerCase());
+	return role.id;
+}
+
 async function updatePerms(commandName, permissions = null, defaultPermissions = null) {
 	// If commandName is not a string, throw an error.
 	if (typeof commandName !== 'string') throw new Error('Command name must be a string.');
