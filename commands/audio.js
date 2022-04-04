@@ -61,7 +61,15 @@ module.exports = {
 	},
 };
 
-// Play function
+/**
+ * @param  {interaction, player} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Play a youtube video as audio.
+ * @example audio play https://www.youtube.com/watch?v=dQw4w9WgXcQ
+ * @example audio play search term goes here
+ * @note This command relies on the event listener "trackStart" found in ./client.js
+ */
 async function play(args) {
 	const { interaction, player } = args;
 
@@ -103,7 +111,13 @@ async function play(args) {
 	return await interaction.followUp({ content: `⏱️ | Loading track **${track.title}**!` });
 }
 
-// Stop function.
+/**
+ * @param  {player, interaction} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Stop the currently playing audio.
+ * @example audio stop
+ */
 async function stop(args) {
 	// Get the current guild's queue from the player.
 	const queue = args.player.queues.find((q) => q.guild === args.interaction.guild);
@@ -120,7 +134,14 @@ async function stop(args) {
 	return args.interaction.reply('Track stopped.');
 }
 
-// Skip function.
+/**
+ * @param  {} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Skip the currently playing audio/track.
+ * @example audio skip
+ * @example audio skip 2
+ */
 async function skip(args) {
 	// Get the current guild's queue from the player.
 	const queue = args.player.queues.find((q) => q.guild === args.interaction.guild);
@@ -146,7 +167,13 @@ async function skip(args) {
 	}
 }
 
-// Clear function.
+/**
+ * @param  {} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Clear the queue.
+ * @example audio clear
+ */
 async function clear(args) {
 	// Get the current guild's queue from the player.
 	const queue = args.player.queues.find((q) => q.guild === args.interaction.guild);
@@ -162,8 +189,15 @@ async function clear(args) {
 	// Let the user know the queue has been cleared.
 	return args.interaction.reply('Queue cleared.');
 }
-
-// Volume function.
+/**
+ * @param  {} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Set the volume of the player.
+ * @example audio volume 50
+ * @max 100
+ * @min 20
+ */
 async function volume(args) {
 	// If the interaction user's id does not match the ownerId in env variables, and the volume is over 100 or under 20, reply with an error.
 	if (args.interaction.user.id !== process.env.ownerUserId) {

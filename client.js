@@ -46,7 +46,9 @@ for (const file of commandFiles) {
 }
 
 const rest = new REST({ version: '9' }).setToken(token);
-
+/**
+ * @note Unregisters application-wide commands.
+ */
 const registerCommands = async () => {
 	try {
 		// Deploy guild commands.
@@ -77,6 +79,8 @@ client.on('ready', () => {
 	client.user.setPresence({ activities: [{ name: `with ${guild.name}` }] });
 });
 
+// When a message is received, check if the message is a command.
+// If it is, run the command and parse args.
 client.on('interactionCreate', async (interaction) => {
 	if (!interaction.isCommand()) return;
 	// console.log(interaction);
@@ -112,13 +116,19 @@ client
 	.login(token)
 	.then(async () => {
 		// Update the permissions of various commands using repeated function calls.
-		updatePerms('purge', [{ id: await getRoleIdByName('admin'), type: 'ROLE', permission: true }]);
+		updatePerms('purge', [{ id: getRoleIdByName('admin'), type: 'ROLE', permission: true }]);
 	})
 	.catch((error) => {
 		console.error(error);
 	});
 
-// Function to get the id of a role by name.
+/**
+ * @param  {} roleName
+ * @returns {string} id
+ * @description Gets the role ID of the role with the name provided.
+ * @example getRoleIdByName('admin');
+ * @note Only works with roles that are in the primary guild.
+ */
 async function getRoleIdByName(roleName) {
 	// If roleName is null, return.
 	if (!roleName) return;
@@ -131,6 +141,16 @@ async function getRoleIdByName(roleName) {
 	return role.id;
 }
 
+/**
+ * @param  {} commandName
+ * @param  {} permissions=null
+ * @param  {} defaultPermissions=null
+ * @description Updates the permissions of the command by it's name. Permissions or default permissions can be provided.
+ * @example updatePerms('purge', [{ id: '12345678901234567890123456789012', type: 'ROLE', permission: true }]);
+ * @example updatePerms('purge', null, true);
+ * @note Only works with commands that are in the primary guild.
+ * @note When setting permissions, the owner of the bot will be given permissions to run the command regardless of the permissions provided.
+ */
 async function updatePerms(commandName, permissions = null, defaultPermissions = null) {
 	// If commandName is not a string, throw an error.
 	if (typeof commandName !== 'string') throw new Error('Command name must be a string.');

@@ -44,6 +44,13 @@ module.exports = {
 	},
 };
 
+/**
+ * @param  {} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Retrieves and displays information about a Discord member in an embed.
+ * @example info member @member
+ */
 async function member(args) {
 	const { MessageEmbed, interaction, color, options } = args;
 
@@ -90,6 +97,13 @@ async function member(args) {
 	interaction.reply({ embeds: [embed] });
 }
 
+/**
+ * @param  {} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Retrieves and displays information about a Discord user in an embed.
+ * @example info user @user
+ */
 async function user(args) {
 	// Define a const with multiple variables from args.
 	const { MessageEmbed, interaction, color, options } = args;
@@ -149,6 +163,13 @@ async function user(args) {
 	interaction.reply({ embeds: [embed] });
 }
 
+/**
+ * @param  {} args
+ * @returns {Promise<void>}
+ * @async
+ * @description Retrieves and displays information about a Discord guild in an embed.
+ * @example info guild
+ */
 async function guild(args) {
 	// Define a const with interaction from args.
 	const { interaction } = args;

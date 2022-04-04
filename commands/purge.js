@@ -8,6 +8,14 @@ module.exports = {
 		.addIntegerOption((option) =>
 			option.setName('number').setDescription('The number of messages to purge (max 100)').setRequired(true)
 		),
+	/**
+	 * @param  {} args
+	 * @returns {Promise<void>}
+	 * @async
+	 * @description Purges a number of messages from the current channel.
+	 * @example purge 10
+	 * @max 100
+	 */
 	execute: async (args) => {
 		const { interaction, options } = args;
 

@@ -1,6 +1,5 @@
 // Require DJS builders.
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const buffer = require('buffer');
 
 module.exports = {
 	data: new SlashCommandBuilder()
