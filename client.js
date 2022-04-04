@@ -53,6 +53,9 @@ const registerCommands = async () => {
 		console.log('Deploying guild commands...');
 		await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
 		console.log('Deployed guild commands.');
+		// Use rest.put to deploy an empty array of application commands.
+		// This will remove all global application commands.
+		await rest.put(Routes.applicationCommands(clientId), { body: [] });
 
 		// // Deploy application commands.
 		// console.log('Deploying application commands...');
