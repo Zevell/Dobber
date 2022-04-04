@@ -24,7 +24,8 @@ myIntents.add(
 	Intents.FLAGS.GUILD_BANS,
 	Intents.FLAGS.GUILD_PRESENCES,
 	Intents.FLAGS.DIRECT_MESSAGES,
-	Intents.FLAGS.GUILD_MESSAGES
+	Intents.FLAGS.GUILD_MESSAGES,
+	Intents.FLAGS.GUILD_VOICE_STATES
 );
 
 const client = new Client({ intents: myIntents });
