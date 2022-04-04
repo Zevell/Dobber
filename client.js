@@ -4,6 +4,8 @@ const path = require('path');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { MessageEmbed, Client, Intents } = require('discord.js');
+// Import the NPM package for audio handling.
+const { Player } = require('discord-player');
 const myIntents = new Intents();
 
 // If the bot is in development mode, create a token variable and assign it to the dev token in the .env file.
@@ -29,6 +31,9 @@ myIntents.add(
 );
 
 const client = new Client({ intents: myIntents });
+const player = new Player(client);
+// add the trackStart event so when a song will be played this message will be sent
+player.on('trackStart', (queue, track) => queue.metadata.channel.send(`🎶 | Now playing **${track.title}**!`));
 
 const color = '#5d17ff';
 const commands = [];
@@ -83,6 +88,7 @@ client.on('interactionCreate', async (interaction) => {
 		interaction: interaction,
 		client: client,
 		options: options,
+		player: player,
 	};
 
 	// If the command doesn't exist, return with an interaction reply stating the command was not found.
