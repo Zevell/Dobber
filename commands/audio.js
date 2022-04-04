@@ -62,7 +62,7 @@ module.exports = {
 };
 
 /**
- * @param  {interaction, player} args
+ * @param  {} args
  * @returns {Promise<void>}
  * @async
  * @description Play a youtube video as audio.
