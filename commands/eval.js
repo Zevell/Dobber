@@ -25,7 +25,7 @@ module.exports = {
 		});
 
 		if (args.interaction.user.id !== process.env.ownerUserId) {
-			return args.interaction.reply('Hey! ||No!||');
+			return args.interaction.reply('Hey! ||No!||'); // Send a reply to the user. Uses a spoiler tag.
 		}
 
 		try {
@@ -37,7 +37,9 @@ module.exports = {
 			return;
 		} catch (error) {
 			console.error(error);
-			args.interaction.reply(`Error: \n\`\`\`\n${error}\n\`\`\``).catch((error) => console.error(error));
+			args.interaction
+				.reply({ content: `Error: \n\`\`\`\n${error}\n\`\`\``, ephemeral: args.options.getBoolean('ephemeral') })
+				.catch((error) => console.error(error));
 		}
 	},
 };
@@ -58,7 +60,9 @@ function sendEvalResult(args, result) {
 			});
 		} else {
 			args.interaction.reply({
-				files: [{ attachment: Buffer.from(result), name: 'eval_output.txt' }],
+				files: [
+					{ attachment: Buffer.from(result), name: 'eval_output.txt', ephemeral: args.options.getBoolean('ephemeral') },
+				],
 			});
 		}
 	} else {
