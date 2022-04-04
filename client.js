@@ -102,8 +102,7 @@ client
 	.login(token)
 	.then(async () => {
 		// Update the permissions of various commands using repeated function calls.
-		updatePerms('purge', [{ id: '126701110864904192', type: 'ROLE', permission: true }]);
-		updatePerms('nsfw', null, false);
+		updatePerms('purge', [{ id: await getRoleIdByName('admin'), type: 'ROLE', permission: true }]);
 	})
 	.catch((error) => {
 		console.error(error);
