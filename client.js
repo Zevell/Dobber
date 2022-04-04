@@ -57,8 +57,8 @@ const registerCommands = async () => {
 	}
 };
 
-// Emit a one-time ready event.
-client.once('ready', () => {
+// When client is ready, log that the bot is ready, and set the bot's presence.
+client.on('ready', () => {
 	console.log('Ready!');
 
 	// Get the guild from the guildId variable.
