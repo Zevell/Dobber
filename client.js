@@ -115,8 +115,12 @@ registerCommands();
 client
 	.login(token)
 	.then(async () => {
-		// Update the permissions of various commands using repeated function calls.
-		updatePerms('purge', [{ id: getRoleIdByName('admin'), type: 'ROLE', permission: true }]);
+		try {
+			// Update the permissions of various commands using repeated function calls.
+			updatePerms('purge', [{ id: await getRoleIdByName('admin'), type: 'ROLE', permission: true }]);
+		} catch (error) {
+			console.error(error);
+		}
 	})
 	.catch((error) => {
 		console.error(error);
@@ -138,6 +142,8 @@ async function getRoleIdByName(roleName) {
 	const guild = client.guilds.cache.get(guildId);
 	const roles = await guild.roles.fetch();
 	const role = roles.find((r) => r.name.toLowerCase() === roleName.toLowerCase());
+
+	if (!role) return new Error(`Role with name '${roleName}' not found.`);
 	return role.id;
 }
 
